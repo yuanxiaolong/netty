@@ -12,7 +12,7 @@ import org.jboss.netty.channel.SimpleChannelUpstreamHandler;
 import com.yxl.main.ServerMain;
 
 /**
- * Server´¦Àí³ÌĞòHandler
+ * Serverå¤„ç†ç¨‹åºHandler
  * 
  * @author yuanxiaolong.sam
  * 
@@ -20,7 +20,7 @@ import com.yxl.main.ServerMain;
  */
 public class ServerHandler extends SimpleChannelUpstreamHandler {
 
-	// ServerÊÕµ½ClientÏûÏ¢´¦Àí 
+	// Serveræ”¶åˆ°Clientæ¶ˆæ¯å¤„ç† 
 	public void messageReceived(ChannelHandlerContext ctx, MessageEvent e)
 			throws Exception {
 		Channel channel = e.getChannel();
@@ -29,33 +29,33 @@ public class ServerHandler extends SimpleChannelUpstreamHandler {
 					.getRemoteAddress()).getAddress().getHostAddress();
 			int port = ((InetSocketAddress) ctx.getChannel().getRemoteAddress())
 					.getPort();
-			//½«ipºÍhost×é×°ÆğÀ´,·Åµ½mapÀï,ÓÃÓÚ¹ÜÀí¶à¸öClientµÄÁ¬½Ó
+			//å°†ipå’Œhostç»„è£…èµ·æ¥,æ”¾åˆ°mapé‡Œ,ç”¨äºç®¡ç†å¤šä¸ªClientçš„è¿æ¥
 			ServerMain.channelMap.put(host + ":" + port, channel);
 		}
 		System.out.println("Server recive message: " + e.getMessage());
-		//²é¿´µ±Ç°Á¬½ÓMap
+		//æŸ¥çœ‹å½“å‰è¿æ¥Map
 		System.out.println(ServerMain.channelMap);
 	}
 
-	// Òì³£´¦Àí»Øµ÷
+	// å¼‚å¸¸å¤„ç†å›è°ƒ
 	public void exceptionCaught(ChannelHandlerContext ctx, ExceptionEvent e)
 			throws Exception {
 		System.err.println(" Server has a error,Error cause:" + e.getCause());
 		e.getChannel().close();
 	}
 
-	// Á¬½Ó¹Ø±Õ´¦Àí
+	// è¿æ¥å…³é—­å¤„ç†
 	public void channelClosed(ChannelHandlerContext ctx, ChannelStateEvent e) {
 		String host = ((InetSocketAddress) ctx.getChannel()
 				.getRemoteAddress()).getAddress().getHostAddress();
 		int port = ((InetSocketAddress) ctx.getChannel().getRemoteAddress())
 				.getPort();
 		System.out.println("server close channel: " + "[" + host + ":" + port + "]");
-		//ÒÆ³ıÎŞÓÃÁ¬½Ó
+		//ç§»é™¤æ— ç”¨è¿æ¥
 		try {
 			ServerMain.channelMap.remove(host + ":" + port);
 		} catch (Exception e2) {
-			//ÕâÀïÈç¹ûÎªÁË¸ü¸ß¿ÉÓÃ,¿ÉÒÔ½«É¾³ıÊ§°ÜµÄ¼ÓÈëÒ»¸ö¶ÓÁĞÀï£¬ºóÌ¨Æô¶¯Ò»¸öcleanupµÄÏß³Ì
+			//è¿™é‡Œå¦‚æœä¸ºäº†æ›´é«˜å¯ç”¨,å¯ä»¥å°†åˆ é™¤å¤±è´¥çš„åŠ å…¥ä¸€ä¸ªé˜Ÿåˆ—é‡Œï¼Œåå°å¯åŠ¨ä¸€ä¸ªcleanupçš„çº¿ç¨‹
 		}
 	}
 

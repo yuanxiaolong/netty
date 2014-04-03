@@ -9,26 +9,26 @@ import com.yxl.serverpull.ServerPullUitl;
 import com.yxl.thread.ServerThread;
 
 /**
- * ·şÎñÆ÷Æô¶¯º¯Êı
+ * æœåŠ¡å™¨å¯åŠ¨å‡½æ•°
  * @author yuanxiaolong.sam 
  *
  * 
  */
 public class ServerMain {
 
-	//Ïß³Ì°²È«map,´¦Àí·şÎñÆ÷hold×¡¿Í»§¶ËÁ¬½ÓµÄchannel
+	//çº¿ç¨‹å®‰å…¨map,å¤„ç†æœåŠ¡å™¨holdä½å®¢æˆ·ç«¯è¿æ¥çš„channel
 	public static ConcurrentMap<String, Channel> channelMap = new ConcurrentHashMap<String, Channel>();
 
 	public static void main(String[] args) {
 		
 		try {
-			//Æô¶¯·şÎñÆ÷
+			//å¯åŠ¨æœåŠ¡å™¨
 			ServerThread r = new ServerThread();
 			Thread t = new Thread(r);
 			t.setName("server thread");
 			t.start();
 
-			//ÍÆËÍÏûÏ¢
+			//æ¨é€æ¶ˆæ¯
 			ServerPullUitl.pullMsg();
 		} catch (Exception e) {
 			System.out.println("know exception on server: " + e.getMessage());
