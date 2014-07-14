@@ -40,6 +40,11 @@ public class ClientHanlder extends SimpleChannelUpstreamHandler {
 	public void messageReceived(ChannelHandlerContext ctx, MessageEvent e)
 			throws Exception {
 		System.out.println("Client Received msg: " + e.getMessage());
+		//如果是短连接,则关闭channel
+		if (ClientThread.isShortTcp) {
+			System.out.println("短连接,now close channel: " + ctx.getChannel());
+			ctx.getChannel().close();
+		}
 	}
  
 	//异常回调函数
@@ -52,7 +57,12 @@ public class ClientHanlder extends SimpleChannelUpstreamHandler {
 	//channel关闭回调函数
 	public void channelClosed(ChannelHandlerContext ctx, ChannelStateEvent e){
         System.out.println("channel has closed,retry after 5's ");
-        //设定定时器,5秒后执行一次逻辑
-        timer.newTimeout(timerTask, RETRY_TIME, TimeUnit.SECONDS);
+        
+        //如果是长连接,才需要客户端断线重连
+        if (!ClientThread.isShortTcp) {
+        	//设定定时器,5秒后执行一次逻辑
+            timer.newTimeout(timerTask, RETRY_TIME, TimeUnit.SECONDS);
+		}
+       
     }
 }

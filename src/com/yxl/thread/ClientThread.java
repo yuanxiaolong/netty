@@ -3,7 +3,6 @@ package com.yxl.thread;
 import static org.jboss.netty.channel.Channels.pipeline;
 
 import java.net.InetSocketAddress;
-import java.util.concurrent.Callable;
 import java.util.concurrent.Executors;
 
 import org.jboss.netty.bootstrap.ClientBootstrap;
@@ -13,6 +12,8 @@ import org.jboss.netty.channel.ChannelPipelineFactory;
 import org.jboss.netty.channel.socket.nio.NioClientSocketChannelFactory;
 import org.jboss.netty.handler.codec.string.StringDecoder;
 import org.jboss.netty.handler.codec.string.StringEncoder;
+import org.jboss.netty.handler.timeout.ReadTimeoutHandler;
+import org.jboss.netty.util.HashedWheelTimer;
 
 import com.yxl.handler.ClientHanlder;
 
@@ -22,7 +23,9 @@ import com.yxl.handler.ClientHanlder;
  *
  *
  */
-public class ClientThread implements Callable<ChannelFuture> {
+public class ClientThread implements Runnable {
+	
+	public static boolean isShortTcp = false;
 
 	//创建Client端线程池工厂
 	private static final NioClientSocketChannelFactory FACTORY = new NioClientSocketChannelFactory(
@@ -33,6 +36,10 @@ public class ClientThread implements Callable<ChannelFuture> {
 
 	//服务器地址
 	public static final InetSocketAddress remoteServerAddress = new InetSocketAddress("127.0.0.1", 8080);
+	
+	private static final HashedWheelTimer timer = new HashedWheelTimer();
+	
+	private static ReadTimeoutHandler timeoutHandler = new ReadTimeoutHandler(timer,3);
 	
 	//客户端执行服务器返回response的处理链pipeline
 	//这里是连接失败时导致大量TCP连接出现的原因,http://javatar.iteye.com/blog/1138527
@@ -45,6 +52,8 @@ public class ClientThread implements Callable<ChannelFuture> {
 			ChannelPipeline pipleline = pipeline();
 			pipleline.addLast("encode", new StringEncoder());
 			pipleline.addLast("decode", new StringDecoder());
+			pipleline.addLast("timeout", timeoutHandler);// this is correct
+//			pipleline.addLast("timeout", new ReadTimeoutHandler(new HashedWheelTimer(),3));//this is bug
 			pipleline.addLast("handler", new ClientHanlder());//客户端handler
 			return pipleline;
 		}
@@ -65,11 +74,12 @@ public class ClientThread implements Callable<ChannelFuture> {
 	}
 
 	@Override
-	public ChannelFuture call() {
-		//与127.0.0.1建立长连接
-		channelFuture = bootstrap.connect(remoteServerAddress);
-		System.out.println("客户端 "+ name +" 启动完毕,返回当前连接: " + channelFuture.hashCode());
-		return channelFuture;
+	public void run() {
+		if (!isShortTcp) {
+			//与127.0.0.1建立长连接
+			channelFuture = bootstrap.connect(remoteServerAddress);
+			System.out.println("客户端 "+ name +" 启动完毕,返回长连接: " + channelFuture.hashCode());
+		}
 	}
 
 	public String getName() {

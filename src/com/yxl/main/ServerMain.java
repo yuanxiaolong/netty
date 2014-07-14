@@ -27,13 +27,14 @@ public class ServerMain {
 			Thread t = new Thread(r);
 			t.setName("server thread");
 			t.start();
-
+			
+			System.out.println("server start at localhost:8080");
 			//推送消息
-			ServerPullUitl.pullMsg();
+			ServerPullUitl.pullMsg();//这里是个while ture,模拟server不停给client反馈
+			
 		} catch (Exception e) {
 			System.out.println("know exception on server: " + e.getMessage());
 		}
-
 	}
 
 }
